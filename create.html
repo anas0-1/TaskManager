@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body> 
+    <div class="app-2">
+        <header><i class="far fa-chevron-left"></i><i class="fas fa-ellipsis-v"></i></header>
+        <div class="new-task">
+            <h1>Create New Task</h1>
+            <div class="tags">
+                <ul>
+                    <li>Meeting</li>
+                    <li>Design</li>
+                    <li>Free time</li>
+                    <li>Travel</li>
+                </ul>
+            </div>
+            <div class="hi">
+                <form class="task-create"><input class="task-title" type="text" placeholder="Task Title" /></form>
+                <form class="task-create"><input class="task-descrption" type="text" placeholder="Add a description..." /></form>
+            </div>
+            <div class="time">
+                <form class="time-1"> <label class="time" for="starttime">Start Time</label><input type="text" name="starttime" placeholder="🗓️ 16 September,10:00am" /></form>
+                <form class="time-2"><label for="endtime">End Time</label><input type="text" name="endtime" placeholder="🗓️ 16 September,11:30am" /></form>
+            </div>
+            <div class="particpants-list"><button class="new-participant"><i class="fal fa-plus"></i></button>
+            </div>
+            <form class="location"><label for="loc">Location</label><input type="text" name="loc" placeholder="Select a location..." /></form>
+            <form class="toggle"><label class="label" for="alert"> <b>Get alert for this task</b></label><label class="toggle-switch"><input class="alert-toggle" type="checkbox" name="alert" checked="checked"/><span class="toggle-slider"></span></label></form><button class="create">Create Task</button></div>
+    </div>
+</body>
+</html>
