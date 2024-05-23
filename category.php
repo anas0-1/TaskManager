@@ -3,18 +3,19 @@ session_start();
 require_once 'func/categoryFunctions.php';
 require_once 'func/colorFunctions.php';
 
-// Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['create'])) {
-        createCategory($_POST['name'], $_POST['color']);
+        $userId = $_SESSION['id'];
+        createCategory($_POST['name'], $userId);
     } elseif (isset($_POST['delete'])) {
-        deleteCategory($_POST['id'], $_POST['name']);
+        deleteCategory($_POST['id']);
     } elseif (isset($_POST['update'])) {
-        updateCategory($_POST['id'], $_POST['name'], $_POST['color']);
+        updateCategory($_POST['id'], $_POST['name']);
     }
 }
 
-$categories = getCategories();
+$userId = $_SESSION['id'];
+$categories = getCategoriesByUserId($userId);
 ?>
 
 <!DOCTYPE html>
@@ -63,7 +64,7 @@ $categories = getCategories();
                 <div id="categories" class="grid grid-cols-1 gap-4">
                     <?php foreach ($categories as $category): 
                         $name = $category['name'];
-                        $color = getCategoryColor($name);
+                        $color = getCategoryColor($userId , $name);
                     ?>
                         <div class="flex justify-between items-center p-4 rounded shadow" style="background-color: <?= htmlspecialchars($color) ?>">
                             <span class="text-black"><?= htmlspecialchars($name) ?></span>

@@ -1,11 +1,12 @@
 <?php
 require_once 'connection.php';
 
-// Function to get all categories
-function getCategories() {
+function getCategoriesByUserId($userId) {
     try {
         $conn = getDatabaseConnection();
-        $stmt = $conn->query("SELECT * FROM categories");
+        $stmt = $conn->prepare("SELECT * FROM categories WHERE user_id = :userId");
+        $stmt->bindParam(':userId', $userId);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
@@ -14,16 +15,13 @@ function getCategories() {
     }
 }
 
-// Function to create a category
-function createCategory($name, $color) {
+function createCategory($name, $userId) {
     try {
         $conn = getDatabaseConnection();
-        $stmt = $conn->prepare("INSERT INTO categories (name) VALUES (:name)");
+        $stmt = $conn->prepare("INSERT INTO categories (name, user_id) VALUES (:name, :userId)");
         $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':userId', $userId);
         $stmt->execute();
-
-        // Store the color in cookies
-        setCategoryColor($name, $color);
         header("Location: category.php");
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
@@ -32,16 +30,12 @@ function createCategory($name, $color) {
     }
 }
 
-// Function to delete a category
-function deleteCategory($id, $name) {
+function deleteCategory($id) {
     try {
         $conn = getDatabaseConnection();
         $stmt = $conn->prepare("DELETE FROM categories WHERE id = :id");
         $stmt->bindParam(':id', $id);
         $stmt->execute();
-
-        // Remove the color cookie
-        setCategoryColor($name, '', true); // Remove the cookie
         header("Location: category.php");
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
@@ -50,17 +44,13 @@ function deleteCategory($id, $name) {
     }
 }
 
-// Function to update a category
-function updateCategory($id, $name, $color) {
+function updateCategory($id, $name) {
     try {
         $conn = getDatabaseConnection();
         $stmt = $conn->prepare("UPDATE categories SET name = :name WHERE id = :id");
-        $stmt->bindParam(':id', $id);
         $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':id', $id);
         $stmt->execute();
-
-        // Update the color in cookies
-        setCategoryColor($name, $color);
         header("Location: category.php");
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();

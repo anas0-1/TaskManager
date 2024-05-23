@@ -52,24 +52,24 @@ if (!isset($_SESSION['id'])) {
             <?php
             // Include the database connection file
             require_once 'func/connection.php';
-           
+
             $user_id = $_SESSION['id'];
 
             // Query to retrieve tasks for the logged-in user
             $sql = "SELECT * FROM tasks WHERE user_id = :user_id";
-            
+
             try {
                 // Get database connection
                 $conn = getDatabaseConnection();
-            
+
                 // Prepare and execute the query
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':user_id', $user_id);
                 $stmt->execute();
-            
+
                 // Fetch tasks
                 $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             } catch (PDOException $e) {
                 // Handle errors
                 echo "Error: " . $e->getMessage();
@@ -86,7 +86,8 @@ if (!isset($_SESSION['id'])) {
                                 <h3 class="font-bold text-gray-800"><?php echo $task['title']; ?></h3>
                                 <p class="text-gray-600"><?php echo $task['description']; ?></p>
                                 <p class="text-gray-500 text-sm">
-                                    <?php echo $task['start_time'] . ' - ' . $task['end_time']; ?></p>
+                                    <?php echo $task['start_time'] . ' - ' . $task['end_time']; ?>
+                                </p>
                             </div>
                             <div class="flex space-x-2">
                                 <button class="text-blue-500 hover:underline">Edit</button>
@@ -104,10 +105,19 @@ if (!isset($_SESSION['id'])) {
                         <h1 class="font-bold px-2 text-sm text-gray-700">Create Task</h1>
                         <div class="tags mt-2">
                             <h2 class="font-bold text-sm text-gray-700">Task Category</h2>
-                            <ul class="flex flex-col gap-1">
-                                <li class="py-1 px-2 rounded-full bg-gray-200 text-xs text-gray-700">Meeting</li>
-                                <li class="py-1 px-2 rounded-full bg-gray-200 text-xs text-gray-700">Design</li>
-                            </ul>
+                            <!-- Styled dropdown menu for selecting category -->
+                            <div class="relative">
+    <?php
+    require_once 'func/createtask.php'; // Include the createtask script
+    $categories = getCategories($user_id); // Fetch categories
+    echo '<select name="category_id" class="p-2 rounded border border-gray-300">';
+    foreach ($categories as $category):
+        echo '<option class="p-2 rounded border border-gray-300 text-black" value="' . $category['id'] . '">' . $category['name'] . '</option>';
+    endforeach;
+    echo '</select>';
+    ?>
+</div>
+
                         </div>
                     </div>
                     <div class="task-details mt-2">
@@ -132,8 +142,17 @@ if (!isset($_SESSION['id'])) {
                     </div>
                 </div>
             </section>
-            
+
         </main>
     </div>
 </body>
+<script>
+    // Update the displayed text of the dropdown when an option is selected
+    document.getElementById('categorySelect').addEventListener('change', function () {
+        var selectedOption = this.options[this.selectedIndex];
+        var displayText = selectedOption.textContent;
+        this.previousElementSibling.textContent = displayText;
+    });
+</script>
+
 </html>
