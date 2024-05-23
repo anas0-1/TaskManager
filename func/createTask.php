@@ -3,14 +3,14 @@
 require_once 'connection.php'; // Include the connection script
 
 // Function to create a new task in the database
-function createTask($title, $description, $start_time, $end_time, $user_id, $category_id)
+function createTask($title, $description, $start_time, $end_time, $category_id, $user_id)
 {
     try {
         // Get database connection
         $conn = getDatabaseConnection();
 
-        // Prepare SQL statement to insert a new task
-        $sql = "INSERT INTO tasks (title, description, start_time, end_time, user_id, category_id) VALUES (:title, :description, :start_time, :end_time, :user_id, :category_id)";
+        // Prepare SQL statement to insert the task
+        $sql = "INSERT INTO tasks (title, description, start_time, end_time, category_id, user_id) VALUES (:title, :description, :start_time, :end_time, :category_id, :user_id)";
 
         // Prepare and bind parameters
         $stmt = $conn->prepare($sql);
@@ -18,13 +18,45 @@ function createTask($title, $description, $start_time, $end_time, $user_id, $cat
         $stmt->bindParam(':description', $description);
         $stmt->bindParam(':start_time', $start_time);
         $stmt->bindParam(':end_time', $end_time);
-        $stmt->bindParam(':user_id', $user_id);
         $stmt->bindParam(':category_id', $category_id);
+        $stmt->bindParam(':user_id', $user_id);
 
         // Execute the statement
         $stmt->execute();
 
-        echo "New task created successfully";
+        echo "Task created successfully";
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    } finally {
+        // Close the database connection
+        $conn = null;
+    }
+}
+
+// Function to update a task in the database
+function updateTask($task_id, $title, $description, $start_time, $end_time, $category_id, $user_id)
+{
+    try {
+        // Get database connection
+        $conn = getDatabaseConnection();
+
+        // Prepare SQL statement to update the task
+        $sql = "UPDATE tasks SET title = :title, description = :description, start_time = :start_time, end_time = :end_time, category_id = :category_id WHERE idtask = :task_id AND user_id = :user_id";
+
+        // Prepare and bind parameters
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':task_id', $task_id);
+        $stmt->bindParam(':title', $title);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':start_time', $start_time);
+        $stmt->bindParam(':end_time', $end_time);
+        $stmt->bindParam(':category_id', $category_id);
+        $stmt->bindParam(':user_id', $user_id);
+
+        // Execute the statement
+        $stmt->execute();
+
+        echo "Task updated successfully";
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     } finally {
@@ -69,24 +101,25 @@ if (!isset($_SESSION)) {
 if (isset($_SESSION['id'])) {
     $user_id = $_SESSION['id'];
 
-    // Check if form is submitted
-    if (isset($_POST['submit'])) {
-        // Retrieve form data
+    // Check if task details are provided
+    if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['start_time']) && isset($_POST['end_time']) && isset($_POST['category_id'])) {
         $title = $_POST['title'];
         $description = $_POST['description'];
         $start_time = $_POST['start_time'];
         $end_time = $_POST['end_time'];
-        $category_id = $_POST['category_id']; // Ensure category_id is properly set in the form
+        $category_id = $_POST['category_id'];
 
-        // Debugging: Output form data
-        echo "Received form data: ";
-        var_dump($_POST);
-
-        // Debugging: Output category ID
-        echo "Received category ID: " . $category_id;
-
-        // Call createTask function
-        createTask($title, $description, $start_time, $end_time, $user_id, $category_id);
+        // Check if we are creating or updating a task
+        if (isset($_POST['action']) && $_POST['action'] == 'update' && isset($_POST['task_id'])) {
+            $task_id = $_POST['task_id'];
+            // Call updateTask function
+            updateTask($task_id, $title, $description, $start_time, $end_time, $category_id, $user_id);
+        } else {
+            // Call createTask function
+            createTask($title, $description, $start_time, $end_time, $category_id, $user_id);
+        }
+    } else {
+        echo "Task details not provided.";
     }
 } else {
     echo "User ID not found in session.";
