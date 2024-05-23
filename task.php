@@ -56,7 +56,7 @@ if (!isset($_SESSION['id'])) {
             $user_id = $_SESSION['id'];
 
             // Query to retrieve tasks for the logged-in user
-            $sql = "SELECT * FROM tasks WHERE user_id = :user_id";
+            $sql = "SELECT tasks.*, categories.name AS category_name FROM tasks LEFT JOIN categories ON tasks.category_id = categories.id WHERE tasks.user_id = :user_id";
 
             try {
                 // Get database connection
@@ -87,6 +87,7 @@ if (!isset($_SESSION['id'])) {
                                 <p class="text-gray-600"><?php echo $task['description']; ?></p>
                                 <p class="text-gray-500 text-sm">
                                     <?php echo $task['start_time'] . ' - ' . $task['end_time']; ?>
+                                    | Category: <?php echo $task['category_name']; ?>
                                 </p>
                             </div>
                             <div class="flex space-x-2">
@@ -98,52 +99,42 @@ if (!isset($_SESSION['id'])) {
                 </div>
             </section>
 
-            <!-- Task Creation Section -->
-            <section class="w-1/3 bg-gray-100 p-4 rounded-lg shadow-lg">
-                <div class="flex flex-col p-4 gap-4 bg-white rounded-lg">
-                    <div class="new-task">
-                        <h1 class="font-bold px-2 text-sm text-gray-700">Create Task</h1>
-                        <div class="tags mt-2">
-                            <h2 class="font-bold text-sm text-gray-700">Task Category</h2>
-                            <!-- Styled dropdown menu for selecting category -->
-                            <div class="relative">
-    <?php
-    require_once 'func/createtask.php'; // Include the createtask script
-    $categories = getCategories($user_id); // Fetch categories
-    echo '<select name="category_id" class="p-2 rounded border border-gray-300">';
-    foreach ($categories as $category):
-        echo '<option class="p-2 rounded border border-gray-300 text-black" value="' . $category['id'] . '">' . $category['name'] . '</option>';
-    endforeach;
-    echo '</select>';
-    ?>
-</div>
-
-                        </div>
-                    </div>
-                    <div class="task-details mt-2">
-                        <form class="task-create text-gray-700" action="func/createtask.php" method="POST">
-                            <input name="title"
-                                class="task-title w-full bg-gray-100 rounded-md py-1 px-2 text-xs border border-gray-300"
-                                type="text" placeholder="Title" />
-                            <input name="description"
-                                class="task-description w-full bg-gray-100 rounded-md py-1 px-2 text-xs border border-gray-300 mt-1"
-                                type="text" placeholder="Description" />
-                            <input name="start_time"
-                                class="w-full bg-gray-100 rounded-md py-1 px-2 text-xs border border-gray-300 mt-1"
-                                type="text" placeholder="🗓️ Start Time (e.g., 10:00am)" />
-                            <input name="end_time"
-                                class="w-full bg-gray-100 rounded-md py-1 px-2 text-xs border border-gray-300 mt-1"
-                                type="text" placeholder="🗓️ End Time (e.g., 11:30am)" />
-                            <!-- Add hidden input field for form submission indicator -->
-                            <input type="hidden" name="submit" value="1">
-                            <button type="submit"
-                                class="create bg-gradient-to-r from-pink-500 to-red-500 text-white py-1 px-2 rounded-md mt-3 text-xs">Create</button>
-                        </form>
-                    </div>
+          <!-- Task Creation Section -->
+<section class="w-1/3 bg-gray-100 p-4 rounded-lg shadow-lg">
+    <div class="flex flex-col p-4 gap-4 bg-white rounded-lg">
+        <div class="new-task">
+            <h1 class="font-bold px-2 text-sm text-gray-700">Create Task</h1>
+            <div class="tags mt-2">
+                <h2 class="font-bold text-sm text-gray-700">Task Category</h2>
+                <!-- Styled dropdown menu for selecting category -->
+                <div class="relative">
+                    <form id="createTaskForm" class="task-create text-gray-700" action="func/createtask.php" method="POST">
+                        <?php
+                        require_once 'func/createtask.php'; // Include the createtask script
+                        $categories = getCategories($user_id); // Fetch categories
+                        echo '<select id="categorySelect" name="category_id" class="p-2 rounded border border-gray-300">';
+                        foreach ($categories as $category):
+                            echo '<option class="p-2 rounded border border-gray-300 text-black" value="' . $category['id'] . '">' . $category['name'] . '</option>';
+                        endforeach;
+                        echo '</select>';
+                        ?>
+                        <!-- Hidden input field to store the selected category ID -->
+                        <input type="hidden" id="selectedCategory" name="selectedCategory" value="">
+                        <input name="title" class="task-title w-full bg-gray-100 rounded-md py-1 px-2 text-xs border border-gray-300" type="text" placeholder="Title" />
+                        <input name="description" class="task-description w-full bg-gray-100 rounded-md py-1 px-2 text-xs border border-gray-300 mt-1" type="text" placeholder="Description" />
+                        <input name="start_time" class="w-full bg-gray-100 rounded-md py-1 px-2 text-xs border border-gray-300 mt-1" type="text" placeholder="🗓️ Start Time (e.g., 10:00am)" />
+                        <input name="end_time" class="w-full bg-gray-100 rounded-md py-1 px-2 text-xs border border-gray-300 mt-1" type="text" placeholder="🗓️ End Time (e.g., 11:30am)" />
+                        <!-- Add hidden input field for form submission indicator -->
+                        <input type="hidden" name="submit" value="1">
+                        <button type="submit" class="create bg-gradient-to-r from-pink-500 to-red-500 text-white py-1 px-2 rounded-md mt-3 text-xs">Create</button>
+                    </form>
                 </div>
-            </section>
+            </div>
+        </div>
+    </div>
+</section>
+    </main>
 
-        </main>
     </div>
 </body>
 <script>
@@ -154,5 +145,14 @@ if (!isset($_SESSION['id'])) {
         this.previousElementSibling.textContent = displayText;
     });
 </script>
+<script>
+    // Update the value of the hidden input field when a category is selected
+    document.getElementById('categorySelect').addEventListener('change', function () {
+        var selectedOption = this.options[this.selectedIndex];
+        var selectedCategoryId = selectedOption.value;
+        document.getElementById('selectedCategory').value = selectedCategoryId;
+    });
+</script>
+
 
 </html>

@@ -1,4 +1,5 @@
 <?php
+
 require_once 'connection.php'; // Include the connection script
 
 // Function to create a new task in the database
@@ -58,3 +59,36 @@ function getCategories($user_id)
         $conn = null;
     }
 }
+
+// Check if session is started
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+// Check if user ID is set in the session
+if (isset($_SESSION['id'])) {
+    $user_id = $_SESSION['id'];
+
+    // Check if form is submitted
+    if (isset($_POST['submit'])) {
+        // Retrieve form data
+        $title = $_POST['title'];
+        $description = $_POST['description'];
+        $start_time = $_POST['start_time'];
+        $end_time = $_POST['end_time'];
+        $category_id = $_POST['category_id']; // Ensure category_id is properly set in the form
+
+        // Debugging: Output form data
+        echo "Received form data: ";
+        var_dump($_POST);
+
+        // Debugging: Output category ID
+        echo "Received category ID: " . $category_id;
+
+        // Call createTask function
+        createTask($title, $description, $start_time, $end_time, $user_id, $category_id);
+    }
+} else {
+    echo "User ID not found in session.";
+}
+?>
