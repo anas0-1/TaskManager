@@ -31,7 +31,7 @@ $categories = getCategoriesByUserId($userId);
 <body>
     <div class="font-familjen-grotesk flex flex-col h-screen p-4 box-border text-white bg-center bg-no-repeat bg-cover" style="background-image: url('https://images.unsplash.com/photo-1500417148159-68083bd7333a');">
         <header>
-            <nav class="bg-white border-b-2 border-gray-200 py-4">
+            <nav class="bg-white border-b-2 border-gray-200 py-4 rounded-xl">
                 <div class="container mx-auto flex justify-between items-center">
                     <a href="#" class="flex items-center text-lg font-semibold text-gray-800">
                         Task Manager
