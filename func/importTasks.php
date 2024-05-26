@@ -51,9 +51,9 @@ if (isset($_FILES['tasks_file']) && $_FILES['tasks_file']['error'] === UPLOAD_ER
             echo "Error: " . $e->getMessage();
         }
     } else {
-        echo "Invalid JSON file.";
+       echo "<script>alert('Invalid JSON file.');</script>";
     }
 } else {
-    echo "Error uploading file.";
+    echo "<script>alert('please select a file.');</script>";
 }
 ?>

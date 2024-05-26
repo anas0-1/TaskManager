@@ -1,18 +1,40 @@
 <?php
-// Include database connection file
+
 require_once 'connection.php';
 
-// Query to retrieve tasks from the database
-$sql = "SELECT * FROM tasks";
+session_start();
+
+
+if (!isset($_SESSION['id'])) {
+    echo json_encode(['error' => 'User is not logged in.']);
+    exit;
+}
+
+// user id and idrole
+$user_id = $_SESSION['id'];
+$user_role = $_SESSION['idrole'];
+
+
+if ($user_role == 1) {
+    // Admin 
+    $sql = "SELECT * FROM tasks";
+} else {
+    // user
+    $sql = "SELECT * FROM tasks WHERE user_id = :user_id";
+}
 
 try {
-    // Get database connection
+
     $conn = getDatabaseConnection();
 
-    // Prepare and execute the query
-    $stmt = $conn->query($sql);
+    $stmt = $conn->prepare($sql);
+    
+    if ($user_role != 1) {
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+    }
 
-    // Fetch tasks data as an associative array
+    $stmt->execute();
+
     $tasksData = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Output tasks data as JSON

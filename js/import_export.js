@@ -50,4 +50,3 @@
 
     // event listener for importing tasks
     document.getElementById('importTasksInput').addEventListener('change', importTasks);
-

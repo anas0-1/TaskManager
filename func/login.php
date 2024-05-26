@@ -27,10 +27,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Set session variables
                 $_SESSION['id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
+                $_SESSION['idrole'] = $user['idrole']; 
 
                 // Redirect based on idrole
                 if ($user['idrole'] == 1) {
-                    header("Location: ../admin.html");
+                    header("Location: ../admin.php");
                 } else {
                     header("Location: ../home.php");
                 }
